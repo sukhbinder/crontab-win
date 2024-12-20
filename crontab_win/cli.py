@@ -17,7 +17,7 @@ TEXT = """# ┌───────────── minute (0 - 59)
 
 
 def create_parser():
-    parser = argparse.ArgumentParser(description="crontab for windows")
+    parser = argparse.ArgumentParser(prog="crontab", description="crontab for windows")
 
     subparsers = parser.add_subparsers(dest="command", required=False)
 
