@@ -1,0 +1,30 @@
+[project]
+name = "crontab-win"
+version = "0.0.1"
+description = "crontab for windows"
+readme = "README.md"
+authors = [{name = "sukhbinder singh"}]
+license = {text = "Apache-2.0"}
+requires-python = ">=3.8"
+classifiers = [
+    "License :: OSI Approved :: Apache Software License"
+]
+dependencies = [
+    "click"
+]
+
+[project.urls]
+Homepage = "https://github.com/sukhbinder/crontab-win"
+Changelog = "https://github.com/sukhbinder/crontab-win/releases"
+Issues = "https://github.com/sukhbinder/crontab-win/issues"
+CI = "https://github.com/sukhbinder/crontab-win/actions"
+
+[project.scripts]
+crontab = "crontab_win.cli:cli"
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
