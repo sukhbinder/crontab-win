@@ -5,7 +5,7 @@ import sys
 
 from crontab_win.app import user_crontab, main
 
-TEXT ="""# ┌───────────── minute (0 - 59)
+TEXT = """# ┌───────────── minute (0 - 59)
 # │ ┌───────────── hour (0 - 23)
 # │ │ ┌───────────── day of the month (1 - 31)
 # │ │ │ ┌───────────── month (1 - 12)
@@ -15,6 +15,7 @@ TEXT ="""# ┌───────────── minute (0 - 59)
 # │ │ │ │ │
 # * * * * * command to execute"""
 
+
 def create_parser():
     parser = argparse.ArgumentParser(description="crontab for windows")
 
@@ -23,7 +24,7 @@ def create_parser():
     run_parser = subparsers.add_parser("run", help=f"Main run parser")
     run_parser.set_defaults(func=mainrun)
 
-    show_parser = subparsers.add_parser("show", help=f"Main run parser")
+    show_parser = subparsers.add_parser("show", help=f"Shows the ``crontab.txt`` ")
     show_parser.set_defaults(func=showcrontab)
 
     parser.set_defaults(func=mainrun)
@@ -45,13 +46,12 @@ def showcrontab(args):
         crontab_path.touch()
         crontab_path.write_text(TEXT)
 
- 
-        
     prog = "start" if sys.platform == "win32" else "open"
     try:
         subprocess.run([prog, str(crontab_path)])
     except FileNotFoundError:
         print("File does not exist. Creating...")
+
 
 def mainrun(args):
     main()

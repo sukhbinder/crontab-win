@@ -14,6 +14,7 @@ def user_crontab():
     """Return the directory for user-specific data."""
     return Path.home() / "crontab.txt"
 
+
 def get_crontablines():
     # Path to crontab file
     CRONTABFILE = user_crontab()
@@ -84,7 +85,9 @@ def run_subprocess(cmdlist):
     if sys.platform == "win32":
         si = subprocess.STARTUPINFO()
         si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-    return subprocess.Popen(cmdlist, startupinfo=si, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    return subprocess.Popen(
+        cmdlist, startupinfo=si, stderr=subprocess.PIPE, stdout=subprocess.PIPE
+    )
 
 
 def process_crontab():
@@ -113,6 +116,7 @@ def main():
     print("To schedule tasks use the crontab.txt in userprofile")
     event_schedule.enter(10, 1, process_crontab, ())
     event_schedule.run()
+
 
 if __name__ == "__main__":
     main()
