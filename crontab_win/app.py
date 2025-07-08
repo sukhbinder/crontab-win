@@ -1,4 +1,3 @@
-import os
 from random import choice
 import sched
 import time
@@ -18,7 +17,7 @@ def user_crontab():
 def get_crontablines():
     # Path to crontab file
     CRONTABFILE = user_crontab()
-    if not os.path.exists(CRONTABFILE):
+    if not CRONTABFILE.exists():
         return None
     else:
         with open(CRONTABFILE, "r") as fin:

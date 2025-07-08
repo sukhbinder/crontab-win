@@ -1,6 +1,6 @@
 import argparse
 
-import subprocess
+import os
 import sys
 
 from crontab_win.app import user_crontab, main
@@ -46,11 +46,11 @@ def showcrontab(args):
         crontab_path.touch()
         crontab_path.write_text(TEXT)
 
-    prog = "start" if sys.platform == "win32" else "open"
+    prog = "cmd /c start" if sys.platform == "win32" else "open"
     try:
-        subprocess.run([prog, str(crontab_path)])
+        iret = os.system(f"{prog} {str(crontab_path)}")
     except FileNotFoundError:
-        print("File does not exist. Creating...")
+        print("File does not exist. ")
 
 
 def mainrun(args):

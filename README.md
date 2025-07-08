@@ -9,7 +9,7 @@ crontab-win
 
 Add crontab entries in a textfile and then this programs are executed as per schedule.
 
-To use the crontab.txt, type ``crontab show`` this will open the crontab.txt.
+To use the crontab.txt, type ``crontab show`` or ``ctab show`` this will open the crontab.txt.
 
 Edit this file to introduce tasks to be run by cron.
  
@@ -21,7 +21,7 @@ To define the time you can provide concrete values for
 minute (m), hour (h), day of month (dom), month (mon),
 and day of week (dow) or use '*' in these fields (for 'any').
 
-Notice that tasks will be started based on the  system notion of time and timezones.
+Notice that tasks will be started based on the system notion of time and timezones.
 
 Output of the crontab jobs (including errors) is shown to the user the crontab file belongs to (unless redirected).
 
@@ -31,6 +31,8 @@ at 5 a.m every week with:
 ```bash
 0 5 * * 1 tar -zcf /var/backups/home.tgz /home/
 ```
+
+Read the [blogpost about it](https://sukhbinder.wordpress.com/2025/07/08/introducing-crontab-win/) 
 
 # Installation
 
