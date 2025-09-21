@@ -94,16 +94,17 @@ def process_crontab():
     try:
         lines = get_crontablines()
         date = get_date()
-        for line in lines:
-            print(line)
-            mins, hour, day, month, dow, command = parse_line(line)
-            if date.weekday() in dow:
-                if date.month in month:
-                    if date.day in day:
-                        if date.hour in hour:
-                            if date.minute in mins:
-                                iret = run_subprocess(command)
-                                delay = 60
+        if lines:
+            for line in lines:
+                print(line)
+                mins, hour, day, month, dow, command = parse_line(line)
+                if date.weekday() in dow:
+                    if date.month in month:
+                        if date.day in day:
+                            if date.hour in hour:
+                                if date.minute in mins:
+                                    _ = run_subprocess(command)
+                                    delay = 60
     except Exception as ex:
         print(ex)
         pass
