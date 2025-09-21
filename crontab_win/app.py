@@ -139,5 +139,6 @@ def main(args):
 
 if __name__ == "__main__":
     from crontab_win.cli import create_parser
+
     parser = create_parser()
     main(parser.parse_args())
