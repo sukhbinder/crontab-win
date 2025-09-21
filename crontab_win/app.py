@@ -1,4 +1,3 @@
-from random import choice
 import sched
 import time
 from datetime import datetime
