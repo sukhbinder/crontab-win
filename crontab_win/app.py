@@ -9,14 +9,32 @@ import sys
 event_schedule = sched.scheduler(time.time, time.sleep)
 
 
-def user_crontab():
+def process_file(file_path):
+    """
+    Process a file and return its name and path to an output folder.
+
+    Args:
+        file_path (str): The path of the file.
+
+    Returns:
+        tuple: A tuple containing the filename and the output folder path.
+    """
+    return (
+        str(Path(file_path).name),
+        str(Path(file_path).parent),
+    )
+
+
+def user_crontab(crontab_file=None):
     """Return the directory for user-specific data."""
+    if crontab_file:
+        return Path(crontab_file)
     return Path.home() / "crontab.txt"
 
 
-def get_crontablines():
+def get_crontablines(crontab_file=None):
     # Path to crontab file
-    CRONTABFILE = user_crontab()
+    CRONTABFILE = user_crontab(crontab_file)
     if not CRONTABFILE.exists():
         return None
     else:
@@ -89,14 +107,13 @@ def run_subprocess(cmdlist):
     )
 
 
-def process_crontab():
+def process_crontab(crontab_file=None):
     delay = 5
     try:
-        lines = get_crontablines()
+        lines = get_crontablines(crontab_file)
         date = get_date()
         if lines:
             for line in lines:
-                print(line)
                 mins, hour, day, month, dow, command = parse_line(line)
                 if date.weekday() in dow:
                     if date.month in month:
@@ -108,13 +125,16 @@ def process_crontab():
     except Exception as ex:
         print(ex)
         pass
-    event_schedule.enter(delay, 5, process_crontab, ())
+    event_schedule.enter(delay, 5, process_crontab, (crontab_file,))
 
 
-def main():
+def main(args):
     print("Crontab is active, please keep this minimized")
-    print("To schedule tasks use the crontab.txt in userprofile")
-    event_schedule.enter(10, 1, process_crontab, ())
+    if args.crontab_file:
+        print(f"To schedule tasks use the {args.crontab_file}")
+    else:
+        print("To schedule tasks use the crontab.txt in userprofile")
+    event_schedule.enter(10, 1, process_crontab, (args.crontab_file,))
     event_schedule.run()
 
 
