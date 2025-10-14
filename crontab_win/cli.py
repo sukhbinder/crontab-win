@@ -17,14 +17,21 @@ TEXT = """# ┌───────────── minute (0 - 59)
 
 
 def create_parser():
-    parser = argparse.ArgumentParser(prog="crontab", description="crontab for windows")
+    parser = argparse.ArgumentParser(prog="crontab", description="Crontab for windows")
+    parser.add_argument(
+        "-c",
+        "--crontab-file",
+        type=str,
+        default=None,
+        help="Specify a crontab file with full path.",
+    )
 
     subparsers = parser.add_subparsers(dest="command", required=False)
 
-    run_parser = subparsers.add_parser("run", help=f"Main run parser")
+    run_parser = subparsers.add_parser("run", help="Main run parser")
     run_parser.set_defaults(func=mainrun)
 
-    show_parser = subparsers.add_parser("show", help=f"Shows the ``crontab.txt`` ")
+    show_parser = subparsers.add_parser("show", help="Shows the ``crontab.txt`` ")
     show_parser.set_defaults(func=showcrontab)
 
     parser.set_defaults(func=mainrun)
@@ -40,7 +47,7 @@ def cli():
 
 
 def showcrontab(args):
-    crontab_path = user_crontab()
+    crontab_path = user_crontab(args.crontab_file)
     # Check if file exists
     if not crontab_path.exists():
         crontab_path.touch()
@@ -48,10 +55,10 @@ def showcrontab(args):
 
     prog = "cmd /c start" if sys.platform == "win32" else "open"
     try:
-        iret = os.system(f"{prog} {str(crontab_path)}")
+        _ = os.system(f"{prog} {str(crontab_path)}")
     except FileNotFoundError:
         print("File does not exist. ")
 
 
 def mainrun(args):
-    main()
+    main(args)

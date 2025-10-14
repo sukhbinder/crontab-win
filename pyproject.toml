@@ -1,6 +1,6 @@
 [project]
 name = "crontab-win"
-version = "0.0.2"
+version = "0.1.3"
 description = "crontab for windows"
 readme = "README.md"
 authors = [{name = "sukhbinder singh"}]
@@ -8,9 +8,6 @@ license = {text = "Apache-2.0"}
 requires-python = ">=3.8"
 classifiers = [
     "License :: OSI Approved :: Apache Software License"
-]
-dependencies = [
-    "click"
 ]
 
 [project.urls]
