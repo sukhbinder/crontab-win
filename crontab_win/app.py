@@ -258,9 +258,7 @@ def process_crontab(crontab_file=None):
         lines = get_crontablines(crontab_file)
         date = get_date()
         if lines:
-            print(lines) #dbg
             for line in lines:
-                #print(line) #dbg
                 try:
                     mins, hour, day, month, dow, command = parse_line(line)
                 except Exception as ex:
