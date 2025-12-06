@@ -40,6 +40,7 @@ def get_crontablines(crontab_file=None):
         with open(CRONTABFILE, "r") as fin:
             lines = fin.readlines()
             lines = [line.strip() for line in lines if not line.startswith("#")]
+            lines = [line for line in lines if len(line)!=0]
         return lines
 
 
@@ -78,46 +79,66 @@ def clean_numbers(doms, mlist):
 
 def parse_line(line):
 
-    # separate schedule-field and command-field
-    REGEX_SCHED=r'^(?P<sched>([0-9a-zA-Z\*\/\,\-]+\s*){5}|@[a-zA-Z]+\s*)'
-    match = re.search(REGEX_SCHED, line)
+    # unavailable keywords
+    REGEX_UNAVAIL=r'(?P<unavail>^@(reboot))'
+    match = re.search(REGEX_UNAVAIL, line)
     if match:
-        sched_str=match.group('sched').lower()
+        raise ValueError(f'keyword {match.group('unavail')} is unavailable.')
+
+    # separate schedule-field and command-field
+    REGEX=r'(?P<sched>^([0-9a-zA-Z\*\/\,\-]+\s+){4}([0-9a-zA-Z\*\/\,\-]+)|^@(yearly|annually|monthly|weekly|daily|midnight|hourly))(\s*)(?P<cmd>.*)'
+    match = re.search(REGEX, line)
+    if match:
+        sched_str = match.group('sched').lower()
+        cmd_str   = match.group('cmd')
+        match sched_str:
+            case '@yearly'|'@annually':
+                sched_str = '0 0 1 1 *'
+            case '@monthly':
+                sched_str = '0 0 1 * *'
+            case '@weekly':
+                sched_str = '0 0 * * 0'
+            case '@daily'|'@midnight':
+                sched_str = '0 0 * * *'
+            case '@hourly':
+                sched_str = '0 * * * *'
     else:
         # schedule-field missing
-        return
+        raise ValueError(f'{line} - schedule-field is not valid.')
 
-    REGEX_CMD=r'^(?P<sched>([0-9a-zA-Z\*\/\,\-]+\s+){5}|@[a-zA-Z]+\s+)(?P<cmd>.+)'
-    match = re.search(REGEX_CMD, line)
-    if match:
-        cmd_str=match.group('cmd')
-    else:
-        cmd_str=""
-
-    #The name of the months/days into numbers
+    # The name of the months/days into numbers
     name_months = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"]
     name_days   = ["sun","mon","tue","wed","thu","fri","sat"]
-
-    if ("-sun" in sched_str):
-        sched_str = sched_str.replace("-sun","-sat,0",1)
 
     # if name of the dow range spans the next week
     REGEX_DOW_RANGE=f'(?P<left>.+)(?P<from>{"|".join(name_days)})' + f'-(?P<to>{"|".join(name_days)})(?P<right>.+)'
     match = re.search(REGEX_DOW_RANGE,sched_str)
     if match:
-        m_to   = name_days.index( match.group("to") )
-        m_from = name_days.index( match.group("from") )
-        if m_from > m_to :
-            sched_str = f'{match.group("left")}{match.group("from")}-sat,sun-{match.group("to")}{match.group("right")}'
-    
+        range_to   = name_days.index( match.group("to") )
+        range_from = name_days.index( match.group("from") )
+        if range_from > range_to :
+            str_from = f'{match.group("from")}-sat'
+            str_to   = f'sun-{match.group("to")}'
+            if range_from==6:            
+                str_from = f'sat'
+            if range_to==0:
+                str_to = f'sun'
+            raise ValueError(f'{match.group("from")}-{match.group("to")} - You cannot set a time span across the multiple periods. {str_from},{str_to} will valid.')
+
     # if name of the month range spans the next year
     REGEX_MON_RANGE=f'(?P<left>.+)(?P<from>{"|".join(name_months)})' + f'-(?P<to>{"|".join(name_months)})(?P<right>.+)'
     match = re.search(REGEX_MON_RANGE,sched_str)
     if match:
-        m_to   = name_months.index( match.group("to") )
-        m_from = name_months.index( match.group("from") )
-        if m_from > m_to :
-            sched_str = f'{match.group("left")}{match.group("from")}-dec,jan-{match.group("to")}{match.group("right")}'
+        range_to   = name_months.index( match.group("to") ) +1
+        range_from = name_months.index( match.group("from") ) +1
+        if range_from > range_to :
+            str_from = f'{match.group("from")}-dec'
+            str_to   = f'jan-{match.group("to")}'
+            if range_from==12:
+                str_from = f'dec'
+            if range_to==1:
+                str_to = f'jan'
+            raise ValueError(f'{match.group("from")}-{match.group("to")} - You cannot set a time span across the multiple periods. {str_from},{str_to} will valid.')
 
     # name of the dow to numbers
     if any(d in sched_str for d in name_days):
@@ -130,6 +151,78 @@ def parse_line(line):
             sched_str = sched_str.replace(m,str(idx+1),2)
 
     mins, hour, day, month, dow, *_rest = sched_str.split()
+    ## if range spans the next period
+    # mins
+    REGEX_RANGE=r'(?P<left>.*?)(?P<from>[0-9]{1,2})-(?P<to>[0-9]{1,2})(?P<right>.*)'
+    match = re.search(REGEX_RANGE,mins)
+    if match:
+        range_to   = int( match.group("to") )
+        range_from = int( match.group("from") )
+        if range_from > range_to :
+            str_from = f'{match.group("from")}-59'
+            str_to   = f'0-{match.group("to")}'
+            if range_from==59:
+                str_from = f'59'
+            if range_to==0:
+                str_to = f'0'
+            raise ValueError(f'{match.group("from")}-{match.group("to")} - You cannot set a time span across the multiple periods. {str_from},{str_to} will valid.')
+
+    # hours
+    match = re.search(REGEX_RANGE,hour)
+    if match:
+        range_to   = int( match.group("to") )
+        range_from = int( match.group("from") )
+        if range_from > range_to :
+            str_from = f'{match.group("from")}-23'
+            str_to   = f'0-{match.group("to")}'
+            if range_from==23:
+                str_from = f'23'
+            if range_to==0:
+                str_to = f'0'
+            raise ValueError(f'{match.group("from")}-{match.group("to")} - You cannot set a time span across the multiple periods. {str_from},{str_to} will valid.')
+
+    # day
+    match = re.search(REGEX_RANGE,day)
+    if match:
+        range_to   = int( match.group("to") )
+        range_from = int( match.group("from") )
+        if range_from > range_to :
+            str_from = f'{match.group("from")}-31'
+            str_to   = f'1-{match.group("to")}'
+            if range_from==31:
+                str_from = f'31'
+            if range_to==1:
+                str_to = f'1'
+            raise ValueError(f'{match.group("from")}-{match.group("to")} - You cannot set a time span across the multiple periods. {str_from},{str_to} will valid.')
+
+    # month
+    match = re.search(REGEX_RANGE,month)
+    if match:
+        range_to   = int( match.group("to") )
+        range_from = int( match.group("from") )
+        if range_from > range_to :
+            str_from = f'{match.group("from")}-12'
+            str_to   = f'1-{match.group("to")}'
+            if range_from==12:
+                str_from = f'12'
+            if range_to==1:
+                str_to = f'1'
+            raise ValueError(f'{match.group("from")}-{match.group("to")} - You cannot set a time span across the multiple periods. {str_from},{str_to} will valid.')
+
+    # dow
+    match = re.search(REGEX_RANGE,dow)
+    if match:
+        range_to   = int( match.group("to") )
+        range_from = int( match.group("from") )
+        if range_from > range_to :
+            str_from = f'{match.group("from")}-6'
+            str_to   = f'0-{match.group("to")}'
+            if range_from==6:
+                str_from = f'6'
+            if range_to==0:
+                str_to = f'0'
+            raise ValueError(f'{match.group("from")}-{match.group("to")} - You cannot set a time span across the multiple periods. {str_from},{str_to} will valid.')
+
     minutes = list(range(0, 60)) #0-59
     hours = list(range(0, 24))   #0-23
     days = list(range(1, 32))    #1-31
@@ -165,8 +258,14 @@ def process_crontab(crontab_file=None):
         lines = get_crontablines(crontab_file)
         date = get_date()
         if lines:
+            print(lines) #dbg
             for line in lines:
-                mins, hour, day, month, dow, command = parse_line(line)
+                #print(line) #dbg
+                try:
+                    mins, hour, day, month, dow, command = parse_line(line)
+                except Exception as ex:
+                    print(ex, file=sys.stderr)
+                    continue
                 if date.weekday() in dow:
                     if date.month in month:
                         if date.day in day:
@@ -175,7 +274,7 @@ def process_crontab(crontab_file=None):
                                     _ = run_subprocess(command)
                                     delay = 60
     except Exception as ex:
-        print(ex)
+        print(ex, file=sys.stderr)
         pass
     event_schedule.enter(delay, 5, process_crontab, (crontab_file,))
 
