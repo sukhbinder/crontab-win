@@ -8,10 +8,10 @@ from crontab_win.app import user_crontab, main
 TEXT = """# ┌───────────── minute (0 - 59)
 # │ ┌───────────── hour (0 - 23)
 # │ │ ┌───────────── day of the month (1 - 31)
-# │ │ │ ┌───────────── month (1 - 12)
+# │ │ │ ┌───────────── month (1 - 12) OR jan,feb,mar,apr ...
 # │ │ │ │ ┌───────────── day of the week (0 - 6) (Sunday to Saturday;
 # │ │ │ │ │                                   7 is also Sunday on some systems)
-# │ │ │ │ │
+# │ │ │ │ │                                   OR sun,mon,tue,wed,thu,fri,sat
 # │ │ │ │ │
 # * * * * * command to execute"""
 
@@ -55,7 +55,7 @@ def showcrontab(args):
 
     prog = "cmd /c start" if sys.platform == "win32" else "open"
     try:
-        _ = os.system(f"{prog} {str(crontab_path)}")
+        _ = os.system(f'{prog} "{str(crontab_path)}"')
     except FileNotFoundError:
         print("File does not exist. ")
 
