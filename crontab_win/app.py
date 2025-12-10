@@ -83,7 +83,8 @@ def parse_line(line):
     REGEX_UNAVAIL=r'(?P<unavail>^@(reboot))'
     match = re.search(REGEX_UNAVAIL, line)
     if match:
-        raise ValueError(f'keyword {match.group('unavail')} is unavailable.')
+        match_unavail=match.group('unavail')
+        raise ValueError(f'keyword {match_unavail} is unavailable.')
 
     # separate schedule-field and command-field
     REGEX=r'(?P<sched>^([0-9a-zA-Z\*\/\,\-]+\s+){4}([0-9a-zA-Z\*\/\,\-]+)|^@(yearly|annually|monthly|weekly|daily|midnight|hourly))(\s*)(?P<cmd>.*)'
