@@ -55,7 +55,7 @@ def showcrontab(args):
 
     prog = "cmd /c start" if sys.platform == "win32" else "open"
     try:
-        _ = os.system(f"{prog} \"{str(crontab_path)}\"")
+        _ = os.system(f'{prog} "{str(crontab_path)}"')
     except FileNotFoundError:
         print("File does not exist. ")
 
