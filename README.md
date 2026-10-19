@@ -11,6 +11,8 @@ This tool allows you to schedule tasks using a `crontab.txt` file, similar to ho
 
 For background on the project read this [blogpost about it](https://sukhbinder.wordpress.com/2025/07/08/introducing-crontab-win/) 
 
+![crontab for windows](https://raw.githubusercontent.com/sukhbinder/crontab-win/refs/heads/main/crontab-win.gif)
+
 # Installation
 
 Install this tool using `pip`:
