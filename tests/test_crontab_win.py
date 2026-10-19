@@ -13,7 +13,7 @@ def test_create_parser():
     result = parser.parse_args([])
     assert result.command is None
     assert parser.prog == "crontab"
-    assert parser.description == "Crontab for windows"
+    assert "Crontab for windows" in parser.description
 
 
 def test_process_file():

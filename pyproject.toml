@@ -1,6 +1,6 @@
 [project]
 name = "crontab-win"
-version = "0.2.0"
+version = "0.2.1"
 description = "crontab for windows"
 readme = "README.md"
 authors = [{name = "sukhbinder singh"}]
