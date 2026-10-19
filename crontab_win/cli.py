@@ -5,7 +5,10 @@ import sys
 
 from crontab_win.app import user_crontab, main
 
-TEXT = """# ┌───────────── minute (0 - 59)
+TEXT = """
+#Crontab syntax
+#
+# ┌───────────── minute (0 - 59)
 # │ ┌───────────── hour (0 - 23)
 # │ │ ┌───────────── day of the month (1 - 31)
 # │ │ │ ┌───────────── month (1 - 12) OR jan,feb,mar,apr ...
@@ -15,9 +18,38 @@ TEXT = """# ┌───────────── minute (0 - 59)
 # │ │ │ │ │
 # * * * * * command to execute"""
 
+EXAMPLE = """
+Examples
+
+Here are some example crontab entries:
+
+```
+# Run a script every 15 minutes
+*/15 * * * * python path/to/my_script.py
+
+# Run a backup at 5 a.m. every day
+0 5 * * * tar -zcf /var/backups/home.tgz /home/
+
+# Open news website every 3 hours at 30 mins
+30 */3 * * * cmd /c start www.bbcnews.com
+
+# Run a task on the first day of every month
+0 0 1 * * echo "Monthly report generation"
+
+# Run a task every Monday at 8:00 AM
+0 8 * * MON python path/to/script.py
+
+"""
+
 
 def create_parser():
-    parser = argparse.ArgumentParser(prog="crontab", description="Crontab for windows")
+    parser = argparse.ArgumentParser(
+        prog="crontab",
+        description="Crontab for windows" + "\n" * 3 + TEXT,
+        epilog=EXAMPLE,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+
     parser.add_argument(
         "-c",
         "--crontab-file",
